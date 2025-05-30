@@ -41,7 +41,7 @@ pip install sympy requests
 1.  **Fetch the metric ansatz**  
     The script will download the metric definition from the upstream repo:
     
-```arduino
+```
 https://raw.githubusercontent.com/arcticoder/warp-bubble-metric-ansatz/main/metric_ansatz.tex
 ```
     
@@ -62,7 +62,6 @@ python connection_curvature.py
 ```bash
 pdflatex connection_curvature.tex
 ```
-    
 
 ---
 
@@ -71,85 +70,5 @@ pdflatex connection_curvature.tex
 ```bash
 ├── connection_curvature.py    # Main script
 ├── connection_curvature.tex   # Generated LaTeX document
-├── README.md                  # This file
-└── LICENSE                    # (optional) choose an open-source license
+└── README.md                  # This file
 ```
-
----
-
-## Script outline
-
-**connection\_curvature.py** does the following:
-
-1.  **Imports**
-    
-```python
-import sympy as sp
-from sympy import Function, symbols
-import requests
-```
-    
-2.  **Define symbols and load metric**
-    
-```python
-t, r, θ, φ = symbols('t r theta phi')
-f = Function('f')(r, t)
-
-url = "https://raw.githubusercontent.com/arcticoder/warp-bubble-metric-ansatz/main/metric_ansatz.tex"
-tex = requests.get(url).text
-# parse out ds^2 line element and build g = sp.Matrix([...])
-```
-    
-3.  **Compute Christoffel symbols**
-    
-```python
-coords = (t, r, θ, φ)
-g_inv = g.inv()
-Gamma = [[[sp.simplify(
-    sp.Rational(1,2)*sum(
-      g_inv[k, m] * (
-        sp.diff(g[m, j], coords[i])
-        + sp.diff(g[m, i], coords[j])
-        - sp.diff(g[i, j], coords[m])
-      )
-      for m in range(4)
-    )
-  ) for j in range(4)] for i in range(4)] for k in range(4)]
-```
-    
-4.  **Compute Riemann tensor**
-    
-```python
-Riemann = [[[[ sp.simplify(
-    sp.diff(Gamma[r][i][j], coords[k])
-    - sp.diff(Gamma[r][i][k], coords[j])
-    + sum(Gamma[s][i][j]*Gamma[r][s][k]
-          - Gamma[s][i][k]*Gamma[r][s][j]
-          for s in range(4))
-  ) for l in range(4)] for k in range(4)] for j in range(4)] for i in range(4)]
-```
-    
-5.  **Compute Ricci tensor & scalar**
-    
-```python
-Ricci = sp.simplify(sum(Riemann[k][i][k][j] for k in range(4)))
-R_scalar = sp.simplify(sum(g_inv[i,j] * Ricci[i,j]
-                            for i in range(4) for j in range(4)))
-```
-    
-6.  **Export to LaTeX**
-    
-```python
-with open("connection_curvature.tex", "w") as f:
-    f.write(r"\documentclass{article}\usepackage{amsmath}\begin{document}")
-    # Section 1: Metric
-    f.write(r"\section*{Metric}\[")
-    f.write(metric_line_element)
-    f.write(r"\]")
-    # Section 2: Christoffel symbols
-    f.write(r"\section*{Christoffel Symbols}")
-    f.write(sp.latex(sp.Matrix(Gamma)))
-    # Section 3–5 similarly...
-    f.write(r"\end{document}")
-```
-  
