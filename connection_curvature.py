@@ -58,6 +58,12 @@ R_scalar = sp.simplify(
     sum(g_inv[i, j] * Ricci[i][j] for i in range(4) for j in range(4))
 )
 
+# Compute Ricci tensor contraction R_{μν}R^{μν}
+Ricci_contraction = sp.simplify(
+    sum(g_inv[i, k] * g_inv[j, l] * Ricci[i][j] * Ricci[k][l] 
+        for i in range(4) for j in range(4) for k in range(4) for l in range(4))
+)
+
 # Export results to LaTeX
 with open("connection_curvature.tex", "w") as texfile:
     texfile.write(r"\documentclass{article}\usepackage{amsmath}\begin{document}")
@@ -84,6 +90,11 @@ with open("connection_curvature.tex", "w") as texfile:
     texfile.write(r"\section*{Ricci Scalar}\n")
     texfile.write(r"\[")
     texfile.write(sp.latex(R_scalar))
+    texfile.write(r"\]\n\n")
+
+    texfile.write(r"\section*{Ricci Tensor Contraction}\n")
+    texfile.write(r"\[")
+    texfile.write("R_{\\mu\\nu}R^{\\mu\\nu} = " + sp.latex(Ricci_contraction))
     texfile.write(r"\]\n\n")
 
     texfile.write(r"\end{document}")
