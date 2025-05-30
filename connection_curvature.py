@@ -51,37 +51,37 @@ Riemann = [[[[sp.simplify(
 ) for l in range(4)] for k in range(4)] for j in range(4)] for i in range(4)]
 
 # Compute Ricci tensor R_{ij} and Ricci scalar R
-Ricci = sp.simplify(
+Ricci = [[sp.simplify(
     sum(Riemann[k][i][k][j] for k in range(4))
-)
+) for j in range(4)] for i in range(4)]
 R_scalar = sp.simplify(
-    sum(g_inv[i, j] * Ricci[i, j] for i in range(4) for j in range(4))
+    sum(g_inv[i, j] * Ricci[i][j] for i in range(4) for j in range(4))
 )
 
 # Export results to LaTeX
 with open("connection_curvature.tex", "w") as texfile:
     texfile.write(r"\documentclass{article}\usepackage{amsmath}\begin{document}")
-    texfile.write("\n\n\section*{Metric Definition}\n")
+    texfile.write(r"\n\n\section*{Metric Definition}\n")
     texfile.write(r"\[")
     texfile.write(metric_line)
     texfile.write(r"\]\n\n")
 
-    texfile.write("\section*{Christoffel Symbols}\n")
+    texfile.write(r"\section*{Christoffel Symbols}\n")
     texfile.write(r"\[")
     texfile.write(sp.latex(sp.Matrix(Gamma)))
     texfile.write(r"\]\n\n")
 
-    texfile.write("\section*{Riemann Tensor}\n")
+    texfile.write(r"\section*{Riemann Tensor}\n")
     texfile.write(r"\[")
     texfile.write(sp.latex(sp.Matrix(Riemann)))
     texfile.write(r"\]\n\n")
 
-    texfile.write("\section*{Ricci Tensor}\n")
+    texfile.write(r"\section*{Ricci Tensor}\n")
     texfile.write(r"\[")
     texfile.write(sp.latex(Ricci))
     texfile.write(r"\]\n\n")
 
-    texfile.write("\section*{Ricci Scalar}\n")
+    texfile.write(r"\section*{Ricci Scalar}\n")
     texfile.write(r"\[")
     texfile.write(sp.latex(R_scalar))
     texfile.write(r"\]\n\n")
